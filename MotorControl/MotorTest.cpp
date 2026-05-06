@@ -110,6 +110,7 @@ void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, 
 
     std::cout << "Reached target.\n\n";
 }
+*/
 
 void print_MotorData(MotorCmd &cmd, MotorData &data) {
     std::cout << "motor ID:    " << cmd.id << "\n";
@@ -119,11 +120,9 @@ void print_MotorData(MotorCmd &cmd, MotorData &data) {
     std::cout << "motor tau:   " << data.tau << " Nm\n";
     std::cout << std::endl;
 }
-*/
 
-void move90degStep(int motor_id, int direction,
-                   MotorCmd &cmd, MotorData &data,
-                   SerialPort &serial) {
+
+void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, SerialPort &serial) {
     const double GEAR_RATIO   = 6.33;
     const double STEP_OUTPUT_RAD = M_PI / 2.0;   // 90 deg output
     const double STEP_MOTOR_RAD  = STEP_OUTPUT_RAD * GEAR_RATIO;
