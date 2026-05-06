@@ -52,7 +52,7 @@ int main() {
 
     return 0;
 }
-
+/*
 void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, SerialPort &serial) {
     const double GEAR_RATIO = 6.33;
     const double STEP_OUTPUT_RAD = M_PI / 4.0;     // 90 degrees at output
@@ -70,7 +70,7 @@ void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, 
         return;
     }
     // new version
-    double q_cmd = q_now;
+    double q_cmd = data.q;
     const double MAX_STEP = 0.01;  // rad per cycle (tune this!)
     
     while (true) {
@@ -118,4 +118,84 @@ void print_MotorData(MotorCmd &cmd, MotorData &data) {
     std::cout << "motor speed: " << data.dq << " rad/s\n";
     std::cout << "motor tau:   " << data.tau << " Nm\n";
     std::cout << std::endl;
+}
+*/
+
+void move90degStep(int motor_id, int direction,
+                   MotorCmd &cmd, MotorData &data,
+                   SerialPort &serial) {
+    const double GEAR_RATIO   = 6.33;
+    const double STEP_OUTPUT_RAD = M_PI / 2.0;   // 90 deg output
+    const double STEP_MOTOR_RAD  = STEP_OUTPUT_RAD * GEAR_RATIO;
+
+    const double POS_TOL_RAD = 0.05 * GEAR_RATIO;
+
+    const double MAX_STEP = 0.01;   // rad per cycle
+    const int LOOP_DELAY_US = 10000;
+
+    // Read current position
+    cmd.id = motor_id;
+    cmd.mode = 0;
+
+    serial.sendRecv(&cmd, &data);
+
+    if (!data.correct) {
+        std::cout << "Failed to read current position\n";
+        return;
+    }
+
+    // Current position
+    double q_now = data.q;
+
+    // Target position
+    double q_target = q_now + direction * STEP_MOTOR_RAD;
+
+    // Commanded position
+    double q_cmd = q_now;
+
+    while (true) {
+
+        double error = q_target - q_cmd;
+
+        // Smooth ramp toward target
+        if (std::fabs(error) < MAX_STEP) {
+            q_cmd = q_target;
+        }
+        else {
+            q_cmd += (error > 0 ? MAX_STEP : -MAX_STEP);
+        }
+
+        // Send position command
+        cmd.id   = motor_id;
+        cmd.mode = 1;
+
+        cmd.kp   = 0.1;
+        cmd.kd   = 0.02;
+
+        cmd.q    = q_cmd;
+        cmd.dq   = 0.0;
+        cmd.tau  = 0.0;
+
+        serial.sendRecv(&cmd, &data);
+
+        if (data.correct) {
+
+            print_MotorData(cmd, data);
+
+            // Check actual motor position
+            if (std::fabs(q_target - data.q) < POS_TOL_RAD) {
+                break;
+            }
+        }
+
+        usleep(LOOP_DELAY_US);
+    }
+
+    // Stop motor
+    cmd.id = motor_id;
+    cmd.mode = 0;
+
+    serial.sendRecv(&cmd, &data);
+
+    std::cout << "Reached target.\n\n";
 }
