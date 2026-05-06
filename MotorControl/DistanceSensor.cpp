@@ -7,8 +7,8 @@
 /* definitions */
 const char* GPIO_CHIP = "gpiochip0";
 
-const int TRIG_PIN = 1;
-const int ECHO_PIN = 2;
+const int TRIG_PIN = 26;
+const int ECHO_PIN = 20;
 
 /* function prototypes */
 double readDistanceCM(gpiod_line* trig, gpiod_line* echo);
