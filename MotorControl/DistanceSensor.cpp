@@ -5,7 +5,7 @@
 #include <gpiod.h>
 
 /* definitions */
-const char* GPIO_CHIP = "gpiochip0";
+const char* GPIO_CHIP = "gpiochip4";
 
 const int TRIG_PIN = 26;
 const int ECHO_PIN = 20;
