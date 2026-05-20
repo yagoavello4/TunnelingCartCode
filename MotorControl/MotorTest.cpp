@@ -130,7 +130,7 @@ void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, 
     const double POS_TOL_RAD = 0.05 * GEAR_RATIO;
 
     const double MAX_STEP = 0.01;   // rad per cycle
-    const int LOOP_DELAY_US = 1000;
+    const int LOOP_DELAY_US = 500;
 
     // Read current position
     cmd.id = motor_id;
@@ -168,7 +168,7 @@ void move90degStep(int motor_id, int direction, MotorCmd &cmd, MotorData &data, 
         cmd.id   = motor_id;
         cmd.mode = 1;
 
-        cmd.kp   = 0.2;
+        cmd.kp   = 0.4;
         cmd.kd   = 0.0;
 
         cmd.q    = q_cmd;
